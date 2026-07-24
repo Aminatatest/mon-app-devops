@@ -43,3 +43,8 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
           --data "{\"text\":\"✅ Image publiée avec succès !\n*Dépôt:* ${{ github.repository }}\n*Branche:* ${{ github.ref_name }}\n*Tag:* ${{ github.sha }}\n*Exécution:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
+          - name: DEBUG - Vérifier le secret
+        run: |
+          echo "Longueur du username: ${#DOCKERHUB_USERNAME}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
