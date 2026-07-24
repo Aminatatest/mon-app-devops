@@ -18,6 +18,11 @@ jobs:
 
       - name: Récupération du code source
         uses: actions/checkout@v4
+      - name: DEBUG - Vérifier le secret
+        run: |
+          echo "Longueur du username: ${#DOCKERHUB_USERNAME}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Préparation de Docker Buildx
         uses: docker/setup-buildx-action@v3
