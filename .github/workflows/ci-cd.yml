@@ -1,0 +1,45 @@
+name: CI/CD Pipeline Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notification Slack - Début du pipeline
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"🚀 Nouveau build démarré pour *${{ github.repository }}* sur la branche *${{ github.ref_name }}* (commit ${{ github.sha }})\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Préparation de Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authentification à Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construction et publication de l'image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mon-app-devops:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/mon-app-devops:${{ github.sha }}
+
+      - name: Notification Slack - Succès
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"✅ Image publiée avec succès !\n*Dépôt:* ${{ github.repository }}\n*Branche:* ${{ github.ref_name }}\n*Tag:* ${{ github.sha }}\n*Exécution:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
