@@ -18,12 +18,14 @@ jobs:
 
       - name: Récupération du code source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: DEBUG - Vérifier le secret
-        run: |
-          echo "Longueur du username: ${#DOCKERHUB_USERNAME}"
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v5
         env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Préparation de Docker Buildx
         uses: docker/setup-buildx-action@v3
